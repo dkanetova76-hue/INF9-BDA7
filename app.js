@@ -179,9 +179,27 @@ function pgHome(){
     <h2>О курсе</h2><div class="panel"><button class="linkbtn" data-go="passport">Паспорт курса</button> · <button class="linkbtn" data-go="plan">Тематический план</button></div>`;
 }
 function pgDoc(title, html, p, n){ return `<div class="panel"><h2>${esc(title)}</h2>${html}</div>${nav2(p, n)}`; }
+/* тестовые задания к лекции: самопроверка на странице (результат не отправляется) */
+function lecQ(n){
+  const t = TESTS['L' + n]; if (!t) return '';
+  const items = t.items.filter(q => q.q.indexOf('\n\n') < 0);
+  const R = rng(n * 977 + 13), qs = items.map((q, i) => ({...q, opts: [q.ok, ...q.bad].map((o, k) => ({o, c: k === 0})).sort(() => R() - .5)}));
+  window.LQ = qs;
+  const qh = qs.map((q, i) => `<div class="q" data-i="${i}"><b>${i + 1}.</b> ${esc(q.q)}${q.opts.map((o, j) => `<label><input type="radio" name="lq${i}" value="${j}"> ${esc(o.o)}</label>`).join('')}<div class="ex small"></div></div>`).join('');
+  return `<h3 class="blk">7. Тестовые задания</h3><p class="small">Самопроверка по теории лекции: ответы здесь не отправляются преподавателю.</p><div id="lq">${qh}</div>
+    <p><button class="btn" id="lq-chk" type="button">Проверить ответы</button> <span id="lq-res" class="res"></span> · <button class="linkbtn" data-go="test/L${n}">Полный тест к лекции (результат получит преподаватель)</button></p>`;
+}
+function wireLecQ(){
+  const b = $('#lq-chk'); if (!b || !window.LQ) return;
+  b.onclick = () => { let got = 0;
+    document.querySelectorAll('#lq .q').forEach(el => { const i = +el.dataset.i, c = el.querySelector('input:checked'), q = window.LQ[i], ok = c && q.opts[+c.value].c;
+      if (ok) got++; el.classList.remove('ok', 'bad'); el.classList.add(ok ? 'ok' : 'bad');
+      el.querySelector('.ex').innerHTML = ok ? '✓ верно' : `✗ верный ответ: <span class="corr">${esc(q.ok)}</span>${q.ex ? '<br>' + esc(q.ex) : ''}`; });
+    $('#lq-res').textContent = `${got} из ${window.LQ.length}`; };
+}
 function pgLec(n){
   const l = C.lectures[n - 1], done = store.get('py-done', {})[n];
-  return `<div class="panel"><h2>Лекция ${n}. ${esc(l.title)}</h2>${l.html}<p><label><input type="checkbox" id="lec-done" ${done ? 'checked' : ''}> Лекция изучена</label> · <button class="linkbtn" data-go="test/L${n}">Пройти тест к лекции</button></p></div>`
+  return `<div class="panel"><h2>Лекция ${n}. ${esc(l.title)}</h2>${l.html}${lecQ(n)}<p><label><input type="checkbox" id="lec-done" ${done ? 'checked' : ''}> Лекция изучена</label> · <button class="linkbtn" data-go="test/L${n}">Пройти тест к лекции</button></p></div>`
     + nav2(n > 1 ? ['lec' + (n - 1), 'Лекция ' + (n - 1)] : null, n < 5 ? ['lec' + (n + 1), 'Лекция ' + (n + 1)] : ['pz1', 'Практическое занятие 1']);
 }
 /* практические занятия: условия + форма отчёта */
@@ -277,7 +295,7 @@ function route(){
   else if (id === 'refs') h = pgDoc('Литература и ресурсы', C.refs, ['exam', 'Зачёт'], null);
   else h = pgHome();
   m.innerHTML = h; wireCode(m); window.scrollTo(0, 0);
-  if (mm){ if (ME && sessOnce('py-lec-' + mm[1])) cloudEv('lecture', mm[1]); const cb = $('#lec-done'); if (cb) cb.onchange = () => { const d = store.get('py-done', {}); d[mm[1]] = cb.checked; store.set('py-done', d); if (cb.checked) cloudEv('lecture_done', mm[1]); }; }
+  if (mm){ wireLecQ(); if (ME && sessOnce('py-lec-' + mm[1])) cloudEv('lecture', mm[1]); const cb = $('#lec-done'); if (cb) cb.onchange = () => { const d = store.get('py-done', {}); d[mm[1]] = cb.checked; store.set('py-done', d); if (cb.checked) cloudEv('lecture_done', mm[1]); }; }
   if (pz){ wirePz(+pz[1]); if (ME && sessOnce('py-pr-' + pz[1])) cloudEv('practice', pz[1]); }
   if (tt) wireTest();
 }
