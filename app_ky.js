@@ -170,10 +170,28 @@ const tabOf = id => /^lec/.test(id) ? 'lec1' : /^pz/.test(id) ? 'pz1' : /^test/.
 function renderTabs(id){ $('#tabs').innerHTML = TABS.map(([k, n]) => `<button class="tab" role="tab" data-go="${k}" aria-selected="${tabOf(id) === k}">${n}</button>`).join(''); }
 const nav2 = (p, n) => `<div class="nav2">${p ? `<button class="btn" data-go="${p[0]}">← ${esc(p[1])}</button>` : '<span></span>'}${n ? `<button class="btn" data-go="${n[0]}">${esc(n[1])} →</button>` : '<span></span>'}</div>`;
 const best = id => { const a = store.get('py-t-' + id, []); return a.length ? Math.max(...a.map(x => x.pct)) : null; };
+function pgCover(){
+  return `<section class="cover"><div class="cv-main">
+    <p class="cv-org">Кыргыз Республикасынын Улуттук илимдер академиясы<br>К. Ш. Токтомаматов атындагы Эл аралык университет</p>
+    <p class="cv-kick">Электрондук окуу китеби</p>
+    <h1 class="cv-title">Программалоо</h1>
+    <p class="cv-sub">Кыргыз Республикасынын информатика мугалимдерин кайра даярдоо үчүн Python тили</p>
+    <ul class="cv-stats"><li><b>5</b><span>лекция</span></li><li><b>2</b><span>практикалык сабак</span></li><li><b>6</b><span>тест</span></li><li><b>1</b><span>сынак</span></li></ul>
+    <p class="cv-act"><button class="btn cv-go" data-go="lec1">1-лекциядан баштоо →</button> <button class="btn cv-alt" data-go="passport">Курстун паспорты</button></p>
+    <p class="cv-au">Д. Э. Канетова<br><span>ф.-м.и.к., доцент</span></p>
+  </div><div class="cv-art" aria-hidden="true"><div class="cv-win"><div class="cv-dots"><i></i><i></i><i></i></div>
+<pre><span class="k">for</span> lesson <span class="k">in</span> course:
+    learn(lesson)
+    practice()
+<span class="k">if</span> test_passed:
+    <span class="f">print</span>(<span class="s">"сынак тапшырылды"</span>)</pre></div>
+    <svg class="cv-ring" viewBox="0 0 200 200"><circle cx="100" cy="100" r="86"/><circle cx="100" cy="100" r="56"/></svg></div>
+    <p class="cv-year">2026</p></section>`;
+}
 function pgHome(){
   const lec = C.lectures.map(l => `<button class="card" data-go="lec${l.n}"><b>${l.n}-лекция. ${esc(l.title)}</b><small>тест: ${best('L' + l.n) == null ? 'тапшырылган жок' : best('L' + l.n) + ' %'}</small></button>`).join('');
   const pz = C.pz.map(p => `<button class="card" data-go="pz${p.n}"><b>${p.n}-практикалык сабак</b><small>${esc(p.title)}</small></button>`).join('');
-  return `<div class="panel"><p class="lead">Кыргыз Республикасынын информатика мугалимдерин кайра даярдоого арналган электрондук окуу китеби: 5 лекция, 2 практикалык сабак жана сынак. Код мисалдарын барактын өзүндө иштетип, өзгөртүүгө болот, ал эми тесттерди жана отчёттарды окутуучуга тапшырса болот.</p>
+  return pgCover() + `<div class="panel"><p class="lead">Кыргыз Республикасынын информатика мугалимдерин кайра даярдоого арналган электрондук окуу китеби: 5 лекция, 2 практикалык сабак жана сынак. Код мисалдарын барактын өзүндө иштетип, өзгөртүүгө болот, ал эми тесттерди жана отчёттарды окутуучуга тапшырса болот.</p>
     <p class="small">Python биринчи жолу бир нече секундда ишке кирет жана интернетти талап кылат. Башка окуу китептериндеги эле эсептик жазуу менен кирсе болот; топтун кодун окутуучу берет.</p></div>
     <h2>Лекциялар</h2><div class="cards">${lec}</div><h2>Практика, тесттер жана сынак</h2><div class="cards">${pz}<button class="card" data-go="tests"><b>Тесттер</b><small>Лекцияларга 5 тест жана жыйынтыктоочу</small></button><button class="card" data-go="exam"><b>Сынак</b><small>тартиби, критерийлери, варианттары</small></button></div>
     <h2>Курс жөнүндө</h2><div class="panel"><button class="linkbtn" data-go="passport">Курстун паспорты</button> · <button class="linkbtn" data-go="plan">Тематикалык план</button></div>`;
@@ -294,7 +312,7 @@ function route(){
   else if (id === 'exam') h = pgDoc('Сынак', C.exam, ['tests', 'Тесттер'], ['refs', 'Адабият']);
   else if (id === 'refs') h = pgDoc('Адабият жана ресурстар', C.refs, ['exam', 'Сынак'], null);
   else h = pgHome();
-  m.innerHTML = h; wireCode(m); window.scrollTo(0, 0);
+  m.innerHTML = h; document.body.classList.toggle('is-cover', !!m.querySelector('.cover')); wireCode(m); window.scrollTo(0, 0);
   if (mm){ wireLecQ(); if (ME && sessOnce('py-lec-' + mm[1])) cloudEv('lecture', mm[1]); const cb = $('#lec-done'); if (cb) cb.onchange = () => { const d = store.get('py-done', {}); d[mm[1]] = cb.checked; store.set('py-done', d); if (cb.checked) cloudEv('lecture_done', mm[1]); }; }
   if (pz){ wirePz(+pz[1]); if (ME && sessOnce('py-pr-' + pz[1])) cloudEv('practice', pz[1]); }
   if (tt) wireTest();

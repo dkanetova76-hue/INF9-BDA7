@@ -170,10 +170,28 @@ const tabOf = id => /^lec/.test(id) ? 'lec1' : /^pz/.test(id) ? 'pz1' : /^test/.
 function renderTabs(id){ $('#tabs').innerHTML = TABS.map(([k, n]) => `<button class="tab" role="tab" data-go="${k}" aria-selected="${tabOf(id) === k}">${n}</button>`).join(''); }
 const nav2 = (p, n) => `<div class="nav2">${p ? `<button class="btn" data-go="${p[0]}">← ${esc(p[1])}</button>` : '<span></span>'}${n ? `<button class="btn" data-go="${n[0]}">${esc(n[1])} →</button>` : '<span></span>'}</div>`;
 const best = id => { const a = store.get('py-t-' + id, []); return a.length ? Math.max(...a.map(x => x.pct)) : null; };
+function pgCover(){
+  return `<section class="cover"><div class="cv-main">
+    <p class="cv-org">Национальная академия наук Кыргызской Республики<br>Международный университет имени К. Ш. Токтомаматова</p>
+    <p class="cv-kick">Электронный учебник</p>
+    <h1 class="cv-title">Программирование</h1>
+    <p class="cv-sub">Язык Python для переподготовки учителей информатики Кыргызской Республики</p>
+    <ul class="cv-stats"><li><b>5</b><span>лекций</span></li><li><b>2</b><span>практических занятия</span></li><li><b>6</b><span>тестов</span></li><li><b>1</b><span>зачёт</span></li></ul>
+    <p class="cv-act"><button class="btn cv-go" data-go="lec1">Начать с лекции 1 →</button> <button class="btn cv-alt" data-go="passport">Паспорт курса</button></p>
+    <p class="cv-au">Д. Э. Канетова<br><span>к.ф.-м.н., доцент</span></p>
+  </div><div class="cv-art" aria-hidden="true"><div class="cv-win"><div class="cv-dots"><i></i><i></i><i></i></div>
+<pre><span class="k">for</span> lesson <span class="k">in</span> course:
+    learn(lesson)
+    practice()
+<span class="k">if</span> test_passed:
+    <span class="f">print</span>(<span class="s">"зачёт сдан"</span>)</pre></div>
+    <svg class="cv-ring" viewBox="0 0 200 200"><circle cx="100" cy="100" r="86"/><circle cx="100" cy="100" r="56"/></svg></div>
+    <p class="cv-year">2026</p></section>`;
+}
 function pgHome(){
   const lec = C.lectures.map(l => `<button class="card" data-go="lec${l.n}"><b>Лекция ${l.n}. ${esc(l.title)}</b><small>тест: ${best('L' + l.n) == null ? 'не пройден' : best('L' + l.n) + ' %'}</small></button>`).join('');
   const pz = C.pz.map(p => `<button class="card" data-go="pz${p.n}"><b>Практическое занятие ${p.n}</b><small>${esc(p.title)}</small></button>`).join('');
-  return `<div class="panel"><p class="lead">Электронный учебник для переподготовки учителей информатики Кыргызской Республики: 5 лекций, 2 практических занятия и зачёт. Примеры кода можно запускать и менять прямо на странице, а тесты и отчёты — сдавать преподавателю.</p>
+  return pgCover() + `<div class="panel"><p class="lead">Электронный учебник для переподготовки учителей информатики Кыргызской Республики: 5 лекций, 2 практических занятия и зачёт. Примеры кода можно запускать и менять прямо на странице, а тесты и отчёты — сдавать преподавателю.</p>
     <p class="small">Первый запуск Python занимает несколько секунд и требует интернета. Войти можно той же учётной записью, что и в других учебниках; код группы выдаёт преподаватель.</p></div>
     <h2>Лекции</h2><div class="cards">${lec}</div><h2>Практика, тесты и зачёт</h2><div class="cards">${pz}<button class="card" data-go="tests"><b>Тесты</b><small>5 тестов к лекциям и итоговый</small></button><button class="card" data-go="exam"><b>Зачёт</b><small>порядок, критерии, варианты</small></button></div>
     <h2>О курсе</h2><div class="panel"><button class="linkbtn" data-go="passport">Паспорт курса</button> · <button class="linkbtn" data-go="plan">Тематический план</button></div>`;
@@ -294,7 +312,7 @@ function route(){
   else if (id === 'exam') h = pgDoc('Зачёт', C.exam, ['tests', 'Тесты'], ['refs', 'Литература']);
   else if (id === 'refs') h = pgDoc('Литература и ресурсы', C.refs, ['exam', 'Зачёт'], null);
   else h = pgHome();
-  m.innerHTML = h; wireCode(m); window.scrollTo(0, 0);
+  m.innerHTML = h; document.body.classList.toggle('is-cover', !!m.querySelector('.cover')); wireCode(m); window.scrollTo(0, 0);
   if (mm){ wireLecQ(); if (ME && sessOnce('py-lec-' + mm[1])) cloudEv('lecture', mm[1]); const cb = $('#lec-done'); if (cb) cb.onchange = () => { const d = store.get('py-done', {}); d[mm[1]] = cb.checked; store.set('py-done', d); if (cb.checked) cloudEv('lecture_done', mm[1]); }; }
   if (pz){ wirePz(+pz[1]); if (ME && sessOnce('py-pr-' + pz[1])) cloudEv('practice', pz[1]); }
   if (tt) wireTest();
