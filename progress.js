@@ -99,10 +99,7 @@
   /* выбор дисциплины: после входа (раз за сеанс) и по кнопке «Дисциплины» в панели */
   const BASE = 'https://dkanetova76-hue.github.io/';
   const ALL = [
-    {id: 'isu', name: 'Интеллектуальные системы управления', ky: 'Интеллектуалдык башкаруу системалары', url: BASE + 'isu-trainer/' + (KY ? 'ky.html' : '')},
-    {id: 'ct', name: 'Цифровые технологии', ky: 'Санариптик технологиялар', url: BASE + 'ct-trainer/'},
-    {id: 'py', name: 'Программирование (переподготовка учителей)', ky: 'Программалоо (мугалимдерди кайра даярдоо)', url: BASE + 'py-trainer/' + (KY ? 'ky.html' : '')},
-    {id: 'kuod', name: 'Корпоративное управление и организационный дизайн', ky: 'Корпоративдик башкаруу жана уюштуруучулук дизайн', url: BASE + 'kuod-trainer/' + (KY ? 'ky.html' : '')}];
+    {id: 'py', name: 'Программирование (переподготовка учителей)', ky: 'Программалоо (мугалимдерди кайра даярдоо)', url: BASE + 'py-trainer/' + (KY ? 'ky.html' : '')}];
   const C = KY ? {h: 'Дисциплинаны тандаңыз', p: f => `Сиз ${f} катары кирдиңиз. Бир эсептик жазуу бардык дисциплиналарыңызга ылайыктуу.`, here: 'Ушул жерде улантуу', go: 'Ачуу', cnt: n => `тапшырылган иштер: ${n}`, cur: 'сиз ушул жердесиз', btn: 'Дисциплиналар'}
     : {h: 'Выберите дисциплину', p: f => `Вы вошли как ${f}. Одна учётная запись подходит для всех ваших дисциплин.`, here: 'Продолжить здесь', go: 'Открыть', cnt: n => `сдано работ: ${n}`, cur: 'вы здесь', btn: 'Дисциплины'};
   css.textContent += `.pg-ov{position:fixed;inset:0;z-index:70;background:rgba(10,20,40,.45);display:flex;align-items:center;justify-content:center;padding:16px}
@@ -138,9 +135,6 @@
   if (typeof acctRender === 'function'){ const _ar = acctRender; acctRender = function(){
     const r = _ar.apply(this, arguments);
     if (ME && SB && ME.role !== 'teacher'){
-      const el = document.getElementById('acct'), mine = el && el.querySelector('[data-auth="mine"]');
-      if (mine && !el.querySelector('[data-pg-ch]')){ const b = document.createElement('button'); b.type = 'button'; b.className = mine.className; b.dataset.pgCh = '1'; b.textContent = C.btn;
-        b.onclick = async () => chooser(await myCourses()); mine.parentNode.insertBefore(b, mine); }
       setTimeout(afterLogin, 800);
     }
     return r; }; }
