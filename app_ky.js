@@ -173,7 +173,7 @@ const best = id => { const a = store.get('py-t-' + id, []); return a.length ? Ma
 const dl = (k, t) => `<p class="dl"><a class="btn" href="materials/${k}_ky.pdf" download>⬇ ${t}</a></p>`;
 function pgCover(){
   return `<section class="cover"><div class="cv-main">
-    <p class="cv-org">Кыргыз Республикасынын Улуттук илимдер академиясы<br>К. Ш. Токтомаматов атындагы Эл аралык университет</p>
+    <p class="cv-org">КР Агартуу министрлиги<br>“Мугалимдер институту”</p>
     <p class="cv-kick">Электрондук окуу китеби</p>
     <h1 class="cv-title">Программалоо</h1>
     <p class="cv-sub">Кыргыз Республикасынын информатика мугалимдерин кайра даярдоо үчүн Python тили</p>
