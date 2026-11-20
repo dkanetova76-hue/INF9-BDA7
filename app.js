@@ -170,6 +170,7 @@ const tabOf = id => /^lec/.test(id) ? 'lec1' : /^pz/.test(id) ? 'pz1' : /^test/.
 function renderTabs(id){ $('#tabs').innerHTML = TABS.map(([k, n]) => `<button class="tab" role="tab" data-go="${k}" aria-selected="${tabOf(id) === k}">${n}</button>`).join(''); }
 const nav2 = (p, n) => `<div class="nav2">${p ? `<button class="btn" data-go="${p[0]}">← ${esc(p[1])}</button>` : '<span></span>'}${n ? `<button class="btn" data-go="${n[0]}">${esc(n[1])} →</button>` : '<span></span>'}</div>`;
 const best = id => { const a = store.get('py-t-' + id, []); return a.length ? Math.max(...a.map(x => x.pct)) : null; };
+const dl = (k, t) => `<p class="dl"><a class="btn" href="materials/${k}_ru.pdf" download>⬇ ${t}</a></p>`;
 function pgCover(){
   return `<section class="cover"><div class="cv-main">
     <p class="cv-org">Национальная академия наук Кыргызской Республики<br>Международный университет имени К. Ш. Токтомаматова</p>
@@ -194,6 +195,9 @@ function pgHome(){
   return pgCover() + `<div class="panel"><p class="lead">Электронный учебник для переподготовки учителей информатики Кыргызской Республики: 5 лекций, 2 практических занятия и зачёт. Примеры кода можно запускать и менять прямо на странице, а тесты и отчёты — сдавать преподавателю.</p>
     <p class="small">Первый запуск Python занимает несколько секунд и требует интернета. Войти можно той же учётной записью, что и в других учебниках; код группы выдаёт преподаватель.</p></div>
     <h2>Лекции</h2><div class="cards">${lec}</div><h2>Практика, тесты и зачёт</h2><div class="cards">${pz}<button class="card" data-go="tests"><b>Тесты</b><small>5 тестов к лекциям и итоговый</small></button><button class="card" data-go="exam"><b>Зачёт</b><small>порядок, критерии, варианты</small></button></div>
+    <h2>Материалы для скачивания</h2><div class="panel"><p class="small">Файлы PDF можно сохранить на телефон или компьютер и читать без интернета. Запускать код в них нельзя: для этого откройте учебник.</p>
+    <p><a class="btn pri" href="materials/course_ru.pdf" download>⬇ Весь курс одним файлом (PDF)</a></p>
+    <ul class="dl-list">${C.lectures.map(l => `<li><a href="materials/lec${l.n}_ru.pdf" download>Лекция ${l.n}. ${esc(l.title)} (PDF)</a></li>`).join('')}${C.pz.map(p => `<li><a href="materials/pz${p.n}_ru.pdf" download>Практическое занятие ${p.n}. ${esc(p.title)} (PDF)</a></li>`).join('')}<li><a href="materials/exam_ru.pdf" download>Зачёт (PDF)</a></li></ul></div>
     <h2>О курсе</h2><div class="panel"><button class="linkbtn" data-go="passport">Паспорт курса</button> · <button class="linkbtn" data-go="plan">Тематический план</button></div>`;
 }
 function pgDoc(title, html, p, n){ return `<div class="panel"><h2>${esc(title)}</h2>${html}</div>${nav2(p, n)}`; }
@@ -217,7 +221,7 @@ function wireLecQ(){
 }
 function pgLec(n){
   const l = C.lectures[n - 1], done = store.get('py-done', {})[n];
-  return `<div class="panel"><h2>Лекция ${n}. ${esc(l.title)}</h2>${l.html}${lecQ(n)}<p><label><input type="checkbox" id="lec-done" ${done ? 'checked' : ''}> Лекция изучена</label> · <button class="linkbtn" data-go="test/L${n}">Пройти тест к лекции</button></p></div>`
+  return `<div class="panel"><h2>Лекция ${n}. ${esc(l.title)}</h2>${dl('lec' + n, 'Скачать лекцию (PDF)')}${l.html}${lecQ(n)}<p><label><input type="checkbox" id="lec-done" ${done ? 'checked' : ''}> Лекция изучена</label> · <button class="linkbtn" data-go="test/L${n}">Пройти тест к лекции</button></p></div>`
     + nav2(n > 1 ? ['lec' + (n - 1), 'Лекция ' + (n - 1)] : null, n < 5 ? ['lec' + (n + 1), 'Лекция ' + (n + 1)] : ['pz1', 'Практическое занятие 1']);
 }
 /* практические занятия: условия + форма отчёта */
@@ -227,7 +231,7 @@ function pgPz(n){
   const p = C.pz[n - 1], R = REP.get(n);
   const forms = p.tasks.map(t => `<div class="rt" data-task="${t.id}"><div class="hd">${esc(t.id)}. ${esc(t.t.slice(0, 120))}</div><textarea class="src" spellcheck="false" placeholder="# Ваша программа">${esc((R[t.id] || {}).code || '')}</textarea>
     <div class="bar"><button class="run" type="button">▶ Запустить</button></div><pre class="out">${esc((R[t.id] || {}).out || '')}</pre></div>`).join('');
-  return `<div class="panel"><h2>Практическое занятие ${n}. ${esc(p.title)}</h2>${p.html}</div>
+  return `<div class="panel"><h2>Практическое занятие ${n}. ${esc(p.title)}</h2>${dl('pz' + n, 'Скачать занятие (PDF)')}${p.html}</div>
     <div class="panel" id="rep"><h2>Отчёт: решения</h2><p class="small">Пишите решение в поле каждой задачи и запускайте. Решения сохраняются на этом устройстве. Когда готовы, нажмите «Сдать преподавателю».</p>${forms}
     <p><button class="btn pri" id="r-send">Сдать преподавателю</button> <span class="small" id="r-st"></span></p></div>`
     + nav2(n === 1 ? ['lec3', 'Лекция 3'] : ['lec5', 'Лекция 5'], n === 1 ? ['lec4', 'Лекция 4'] : ['tests', 'Тесты']);

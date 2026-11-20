@@ -170,6 +170,7 @@ const tabOf = id => /^lec/.test(id) ? 'lec1' : /^pz/.test(id) ? 'pz1' : /^test/.
 function renderTabs(id){ $('#tabs').innerHTML = TABS.map(([k, n]) => `<button class="tab" role="tab" data-go="${k}" aria-selected="${tabOf(id) === k}">${n}</button>`).join(''); }
 const nav2 = (p, n) => `<div class="nav2">${p ? `<button class="btn" data-go="${p[0]}">← ${esc(p[1])}</button>` : '<span></span>'}${n ? `<button class="btn" data-go="${n[0]}">${esc(n[1])} →</button>` : '<span></span>'}</div>`;
 const best = id => { const a = store.get('py-t-' + id, []); return a.length ? Math.max(...a.map(x => x.pct)) : null; };
+const dl = (k, t) => `<p class="dl"><a class="btn" href="materials/${k}_ky.pdf" download>⬇ ${t}</a></p>`;
 function pgCover(){
   return `<section class="cover"><div class="cv-main">
     <p class="cv-org">Кыргыз Республикасынын Улуттук илимдер академиясы<br>К. Ш. Токтомаматов атындагы Эл аралык университет</p>
@@ -194,6 +195,9 @@ function pgHome(){
   return pgCover() + `<div class="panel"><p class="lead">Кыргыз Республикасынын информатика мугалимдерин кайра даярдоого арналган электрондук окуу китеби: 5 лекция, 2 практикалык сабак жана сынак. Код мисалдарын барактын өзүндө иштетип, өзгөртүүгө болот, ал эми тесттерди жана отчёттарды окутуучуга тапшырса болот.</p>
     <p class="small">Python биринчи жолу бир нече секундда ишке кирет жана интернетти талап кылат. Башка окуу китептериндеги эле эсептик жазуу менен кирсе болот; топтун кодун окутуучу берет.</p></div>
     <h2>Лекциялар</h2><div class="cards">${lec}</div><h2>Практика, тесттер жана сынак</h2><div class="cards">${pz}<button class="card" data-go="tests"><b>Тесттер</b><small>Лекцияларга 5 тест жана жыйынтыктоочу</small></button><button class="card" data-go="exam"><b>Сынак</b><small>тартиби, критерийлери, варианттары</small></button></div>
+    <h2>Жүктөп алуучу материалдар</h2><div class="panel"><p class="small">PDF файлдарды телефонго же компьютерге сактап, интернетсиз окууга болот. Алардагы кодду иштетүүгө болбойт: ал үчүн окуу китебин ачыңыз.</p>
+    <p><a class="btn pri" href="materials/course_ky.pdf" download>⬇ Бүтүн курс бир файлда (PDF)</a></p>
+    <ul class="dl-list">${C.lectures.map(l => `<li><a href="materials/lec${l.n}_ky.pdf" download>${l.n}-лекция. ${esc(l.title)} (PDF)</a></li>`).join('')}${C.pz.map(p => `<li><a href="materials/pz${p.n}_ky.pdf" download>${p.n}-практикалык сабак. ${esc(p.title)} (PDF)</a></li>`).join('')}<li><a href="materials/exam_ky.pdf" download>Сынак (PDF)</a></li></ul></div>
     <h2>Курс жөнүндө</h2><div class="panel"><button class="linkbtn" data-go="passport">Курстун паспорты</button> · <button class="linkbtn" data-go="plan">Тематикалык план</button></div>`;
 }
 function pgDoc(title, html, p, n){ return `<div class="panel"><h2>${esc(title)}</h2>${html}</div>${nav2(p, n)}`; }
@@ -217,7 +221,7 @@ function wireLecQ(){
 }
 function pgLec(n){
   const l = C.lectures[n - 1], done = store.get('py-done', {})[n];
-  return `<div class="panel"><h2>${n}-лекция. ${esc(l.title)}</h2>${l.html}${lecQ(n)}<p><label><input type="checkbox" id="lec-done" ${done ? 'checked' : ''}> Лекция окулду</label> · <button class="linkbtn" data-go="test/L${n}">Лекция боюнча тестти тапшыруу</button></p></div>`
+  return `<div class="panel"><h2>${n}-лекция. ${esc(l.title)}</h2>${dl('lec' + n, 'Лекцияны жүктөп алуу (PDF)')}${l.html}${lecQ(n)}<p><label><input type="checkbox" id="lec-done" ${done ? 'checked' : ''}> Лекция окулду</label> · <button class="linkbtn" data-go="test/L${n}">Лекция боюнча тестти тапшыруу</button></p></div>`
     + nav2(n > 1 ? ['lec' + (n - 1), '' + (n - 1) + '-лекция'] : null, n < 5 ? ['lec' + (n + 1), '' + (n + 1) + '-лекция'] : ['pz1', '1-практикалык сабак']);
 }
 /* практические занятия: условия + форма отчёта */
@@ -227,7 +231,7 @@ function pgPz(n){
   const p = C.pz[n - 1], R = REP.get(n);
   const forms = p.tasks.map(t => `<div class="rt" data-task="${t.id}"><div class="hd">${esc(t.id)}. ${esc(t.t.slice(0, 120))}</div><textarea class="src" spellcheck="false" placeholder="# Сиздин программаңыз">${esc((R[t.id] || {}).code || '')}</textarea>
     <div class="bar"><button class="run" type="button">▶ Иштетүү</button></div><pre class="out">${esc((R[t.id] || {}).out || '')}</pre></div>`).join('');
-  return `<div class="panel"><h2>${n}-практикалык сабак. ${esc(p.title)}</h2>${p.html}</div>
+  return `<div class="panel"><h2>${n}-практикалык сабак. ${esc(p.title)}</h2>${dl('pz' + n, 'Сабакты жүктөп алуу (PDF)')}${p.html}</div>
     <div class="panel" id="rep"><h2>Отчёт: чечимдер</h2><p class="small">Чечимди ар бир маселенин талаасына жазып, иштетиңиз. Чечимдер ушул түзмөктө сакталат. Даяр болгондо «Окутуучуга тапшыруу» баскычын басыңыз.</p>${forms}
     <p><button class="btn pri" id="r-send">Окутуучуга тапшыруу</button> <span class="small" id="r-st"></span></p></div>`
     + nav2(n === 1 ? ['lec3', '3-лекция'] : ['lec5', '5-лекция'], n === 1 ? ['lec4', '4-лекция'] : ['tests', 'Тесттер']);

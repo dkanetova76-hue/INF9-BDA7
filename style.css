@@ -72,3 +72,7 @@ background:radial-gradient(900px 400px at 85% 0,rgba(110,200,255,.28),transparen
 .cv-ring{position:absolute;right:-70px;bottom:-110px;width:260px;opacity:.28;pointer-events:none}.cv-ring circle{fill:none;stroke:#fff;stroke-width:1.5}
 .cv-year{position:absolute;right:24px;bottom:14px;margin:0;font:600 13px var(--f-body);letter-spacing:.2em;opacity:.7}
 @media(max-width:760px){.cover{grid-template-columns:minmax(0,1fr);padding:26px 20px 48px}.cv-art{display:none}.cover .cv-title{font-size:clamp(24px,7.6vw,40px);overflow-wrap:normal;letter-spacing:0}.cv-sub{font-size:16px}.cv-org{font-size:11px;margin-bottom:20px}}
+
+a.btn{display:inline-block;text-decoration:none;cursor:pointer}p.dl{margin:.2em 0 1em}p.dl a.btn{font-size:13.5px}
+.dl-list{columns:2;column-gap:28px;padding-left:18px;margin:.6em 0 0}.dl-list li{margin:.35em 0;break-inside:avoid}.dl-list a{color:var(--accent)}
+@media(max-width:700px){.dl-list{columns:1}}
